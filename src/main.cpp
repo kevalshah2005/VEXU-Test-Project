@@ -19,6 +19,8 @@ void on_center_button() {
 
 std::shared_ptr<ChassisController> chassis;
 
+std::shared_ptr<AsyncMotionProfileController> chassisProfileController;
+
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -37,6 +39,21 @@ void initialize() {
 			.withDimensions(AbstractMotor::gearset::green, {{4_in, 12.5_in}, imev5GreenTPR})
 			// .withGains({0.0002, 0.0, 0.0}, {0.0005, 0.0, 0.0})  // uncomment this line to enable chassis PID
 			.build();
+
+	chassisProfileController =
+		AsyncMotionProfileControllerBuilder()
+			.withLimits({
+				1.0, // Maximum linear velocity of the Chassis in m/s
+				2.0, // Maximum linear acceleration of the Chassis in m/s/s
+				10.0 // Maximum linear jerk of the Chassis in m/s/s/s
+			})
+			.withOutput(chassis)
+			.buildMotionProfileController();
+
+	chassisProfileController->generatePath(
+		{{0_ft, 0_ft, 0_deg}, {3_ft, 3_ft, 90_deg}}, "right_turn");
+	chassisProfileController->generatePath(
+		{{0_ft, 0_ft, 0_deg}, {3_ft, 0_ft, 0_deg}}, "straight");
 }
 
 /**
@@ -73,12 +90,19 @@ void autonomous() {
 	chassis->setMaxVelocity(constants::auto_max_velocity);
 	printf("Setting max velocity to %f, old max velocity was %f\n", constants::auto_max_velocity, oldMaxVel);
 
-	for (int i=0; i < 4; i++) {
-		chassis->moveDistance(2_ft);
-		printf("Finished driving for iter %d\n", i);
-		chassis->turnAngle(90_deg);
-		printf("Finished turning for iter %d\n", i);
-	}
+	// for (int i=0; i < 4; i++) {
+	// 	chassis->moveDistance(2_ft);
+	// 	printf("Finished driving for iter %d\n", i);
+	// 	chassis->turnAngle(90_deg);
+	// 	printf("Finished turning for iter %d\n", i);
+	// }
+
+	chassisProfileController->setTarget("right_turn");
+	chassisProfileController->waitUntilSettled();
+	chassisProfileController->setTarget("straight");
+	chassisProfileController->waitUntilSettled();
+
+	printf("Done with autonomous routine.\n");
 
 	chassis->setMaxVelocity(oldMaxVel);
 }
