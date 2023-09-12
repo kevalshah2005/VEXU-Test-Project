@@ -34,7 +34,8 @@ void initialize() {
 	chassis = 
 		ChassisControllerBuilder()
 			.withMotors({constants::fl_port, constants::bl_port}, {-constants::fr_port, -constants::br_port})
-			.withDimensions(AbstractMotor::gearset::green, {{4_in, 7.5_in}, imev5GreenTPR})
+			.withDimensions(AbstractMotor::gearset::green, {{4_in, 12.5_in}, imev5GreenTPR})
+			// .withGains({0.0002, 0.0, 0.0}, {0.0005, 0.0, 0.0})  // uncomment this line to enable chassis PID
 			.build();
 }
 
@@ -68,11 +69,18 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
+	double oldMaxVel = chassis->getMaxVelocity();
+	chassis->setMaxVelocity(constants::auto_max_velocity);
+	printf("Setting max velocity to %f, old max velocity was %f\n", constants::auto_max_velocity, oldMaxVel);
+
 	for (int i=0; i < 4; i++) {
 		chassis->moveDistance(2_ft);
+		printf("Finished driving for iter %d\n", i);
 		chassis->turnAngle(90_deg);
-		printf("Finished iteration %d\n", i);
+		printf("Finished turning for iter %d\n", i);
 	}
+
+	chassis->setMaxVelocity(oldMaxVel);
 }
 
 /**
