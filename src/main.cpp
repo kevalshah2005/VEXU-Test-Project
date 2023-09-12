@@ -17,6 +17,8 @@ void on_center_button() {
 	}
 }
 
+std::shared_ptr<ChassisController> chassis;
+
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -28,6 +30,12 @@ void initialize() {
 	pros::lcd::set_text(1, "Hello PROS User!");
 
 	pros::lcd::register_btn1_cb(on_center_button);
+	
+	chassis = 
+		ChassisControllerBuilder()
+			.withMotors({constants::fl_port, constants::bl_port}, {-constants::fr_port, -constants::br_port})
+			.withDimensions(AbstractMotor::gearset::green, {{4_in, 7.5_in}, imev5GreenTPR})
+			.build();
 }
 
 /**
@@ -60,7 +68,11 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-
+	for (int i=0; i < 4; i++) {
+		chassis->moveDistance(2_ft);
+		chassis->turnAngle(90_deg);
+		printf("Finished iteration %d\n", i);
+	}
 }
 
 /**
@@ -79,42 +91,16 @@ void autonomous() {
 void opcontrol() {
 	Controller controller;
 
-	std::shared_ptr<ChassisController> myChassis =
-		ChassisControllerBuilder()
-			.withMotors({constants::fl_port, constants::bl_port}, {-constants::fr_port, -constants::br_port})
-			.withDimensions(AbstractMotor::gearset::green, {{4_in, 7.5_in}, imev5GreenTPR})
-			.build();
-
 	while (true) {
 		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
 		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
 		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
 
-		myChassis -> getModel() -> arcade(
+		chassis->getModel()->arcade(
 			controller.getAnalog(ControllerAnalog::leftY),
 			controller.getAnalog(ControllerAnalog::rightX)
 		);
 
 		pros::delay(10);
 	}
-
-	// pros::Motor fl (constants::fl_port);
-	// pros::Motor fr (-constants::fr_port);
-	// pros::Motor bl (constants::bl_port);
-	// pros::Motor br (-constants::br_port);
-
-	// pros::Controller master (CONTROLLER_MASTER);
-
-	// while (true) {
-	// 	int power = master.get_analog(ANALOG_LEFT_Y);
-	// 	int turn = master.get_analog(ANALOG_RIGHT_X);
-	// 	int left = power + turn;
-	// 	int right = power - turn;
-	// 	fl.move(left);
-	// 	bl.move(left);
-	// 	fr.move(right);
-	// 	br.move(right);
-
-	// 	pros::delay(10);
-	// }
 }
