@@ -77,6 +77,7 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
+	/*
 	Controller controller;
 
 	while (true) {
@@ -94,6 +95,24 @@ void opcontrol() {
 			controller.getAnalog(ControllerAnalog::leftY),
 			controller.getAnalog(ControllerAnalog::rightX)
 		);
+		*/
+
+	pros::Motor fl (constants::fl_port);
+	pros::Motor fr (-constants::fr_port);
+	pros::Motor bl (constants::bl_port);
+	pros::Motor br (-constants::br_port);
+
+	pros::Controller master (CONTROLLER_MASTER);
+
+	while (true) {
+		int power = master.get_analog(ANALOG_LEFT_Y);
+		int turn = master.get_analog(ANALOG_RIGHT_X);
+		int left = power + turn;
+		int right = power - turn;
+		fl.move(left);
+		bl.move(left);
+		fr.move(right);
+		br.move(right);
 
 		pros::delay(10);
 	}
