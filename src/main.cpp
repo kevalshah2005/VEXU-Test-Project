@@ -33,7 +33,7 @@ void initialize() {
 	
 	chassis = 
 		ChassisControllerBuilder()
-			.withMotors({constants::fl_port, constants::bl_port}, {-constants::fr_port, -constants::br_port})
+			.withMotors({constants::FL_PORT, constants::BL_PORT}, {-constants::FR_PORT, -constants::BR_PORT})
 			.withDimensions(AbstractMotor::gearset::green, {{4_in, 12.5_in}, imev5GreenTPR})
 			// .withGains({0.0002, 0.0, 0.0}, {0.0005, 0.0, 0.0})  // uncomment this line to enable chassis PID
 			.build();
@@ -70,8 +70,8 @@ void competition_initialize() {}
  */
 void autonomous() {
 	double oldMaxVel = chassis->getMaxVelocity();
-	chassis->setMaxVelocity(constants::auto_max_velocity);
-	printf("Setting max velocity to %f, old max velocity was %f\n", constants::auto_max_velocity, oldMaxVel);
+	chassis->setMaxVelocity(constants::AUTO_MAX_VELO);
+	printf("Setting max velocity to %f, old max velocity was %f\n", constants::AUTO_MAX_VELO, oldMaxVel);
 
 	for (int i=0; i < 4; i++) {
 		chassis->moveDistance(2_ft);
