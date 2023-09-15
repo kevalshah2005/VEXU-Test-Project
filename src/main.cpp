@@ -138,6 +138,6 @@ void opcontrol() {
 			controller.getAnalog(ControllerAnalog::rightX)
 		);
 
-		pros::delay(10);
+		pros::delay(constants::TELEOP_POLL_TIME);
 	}
 }

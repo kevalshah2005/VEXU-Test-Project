@@ -24,5 +24,7 @@ namespace constants
 
     // Max velocity of auton, in RPM
     inline constexpr double AUTO_MAX_VELO = 50;
+
+    inline constexpr double TELEOP_POLL_TIME = 10.0; // ms
 }
 #endif
