@@ -48,9 +48,9 @@ void initialize() {
 	chassisProfileController =
 		AsyncMotionProfileControllerBuilder()
 			.withLimits({
-				1.0, // Maximum linear velocity of the Chassis in m/s
-				2.0, // Maximum linear acceleration of the Chassis in m/s/s
-				10.0 // Maximum linear jerk of the Chassis in m/s/s/s
+				constants::AUTON_MAX_LINEAR,
+				constants::AUTON_MAX_ACCEL, 
+				constants::AUTON_MAX_JERK
 			})
 			.withOutput(chassis)
 			.buildMotionProfileController();
@@ -126,21 +126,18 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	// Controller controller;
+	Controller controller;
 
-	// while (true) {
-	// 	pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
-	// 	                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-	// 	                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
+	while (true) {
+		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
+		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
+		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
 
-	// 	chassis->getModel()->arcade(
-	// 		controller.getAnalog(ControllerAnalog::leftY),
-	// 		controller.getAnalog(ControllerAnalog::rightX)
-	// 	);
+		chassis->getModel()->arcade(
+			controller.getAnalog(ControllerAnalog::leftY),
+			controller.getAnalog(ControllerAnalog::rightX)
+		);
 
-	// 	pros::delay(10);
-	// }
-
-	autonomous();
-	
+		pros::delay(10);
+	}
 }

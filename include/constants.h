@@ -10,6 +10,10 @@ namespace constants
     inline constexpr auto CHASSIS_DIMS = {4_in, 12.5_in};
     inline constexpr auto CHASSIS_TPR = imev5GreenTPR;
 
+    inline constexpr float AUTON_MAX_LINEAR = 1.0; // Maximum linear velocity of the Chassis in m/s
+    inline constexpr float AUTON_MAX_ACCEL = 2.0;  // Maximum linear acceleration of the Chassis in m/s/s
+    inline constexpr float AUTON_MAX_JERK = 10.0;  // Maximum linear jerk of the Chassis in m/s/s/s
+
     inline constexpr bool LEFT_REVERSED = false;
     inline constexpr bool RIGHT_REVERSED = true;
 
