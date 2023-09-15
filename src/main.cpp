@@ -17,7 +17,7 @@ void on_center_button() {
 	}
 }
 
-std::shared_ptr<ChassisController> chassis;
+static std::shared_ptr<ChassisController> chassis;
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -31,10 +31,16 @@ void initialize() {
 
 	pros::lcd::register_btn1_cb(on_center_button);
 	
+	MotorGroup mgroup_l {{constants::FL_PORT, constants::BL_PORT}};
+	MotorGroup mgroup_r {{constants::FR_PORT, constants::BR_PORT}};
+
+	mgroup_l.setReversed(constants::LEFT_REVERSED);
+	mgroup_r.setReversed(constants::RIGHT_REVERSED);
+
 	chassis = 
 		ChassisControllerBuilder()
-			.withMotors({constants::FL_PORT, constants::BL_PORT}, {-constants::FR_PORT, -constants::BR_PORT})
-			.withDimensions(AbstractMotor::gearset::green, {{4_in, 12.5_in}, imev5GreenTPR})
+			.withMotors(mgroup_l, mgroup_r)
+			.withDimensions(constants::CHASSIS_GEARSET, {constants::CHASSIS_DIMS, constants::CHASSIS_TPR})
 			// .withGains({0.0002, 0.0, 0.0}, {0.0005, 0.0, 0.0})  // uncomment this line to enable chassis PID
 			.build();
 }
