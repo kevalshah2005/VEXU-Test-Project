@@ -121,18 +121,21 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	Controller controller;
+	// Controller controller;
 
-	while (true) {
-		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
-		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
+	// while (true) {
+	// 	pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
+	// 	                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
+	// 	                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
 
-		chassis->getModel()->arcade(
-			controller.getAnalog(ControllerAnalog::leftY),
-			controller.getAnalog(ControllerAnalog::rightX)
-		);
+	// 	chassis->getModel()->arcade(
+	// 		controller.getAnalog(ControllerAnalog::leftY),
+	// 		controller.getAnalog(ControllerAnalog::rightX)
+	// 	);
 
-		pros::delay(10);
-	}
+	// 	pros::delay(10);
+	// }
+
+	autonomous();
+	
 }
