@@ -18,8 +18,7 @@ void on_center_button() {
 }
 
 static std::shared_ptr<ChassisController> chassis;
-
-std::shared_ptr<AsyncMotionProfileController> chassisProfileController;
+static std::shared_ptr<AsyncMotionProfileController> chassisProfileController;
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
