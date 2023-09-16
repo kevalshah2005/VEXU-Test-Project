@@ -47,11 +47,7 @@ void initialize() {
 
 	chassisProfileController =
 		AsyncMotionProfileControllerBuilder()
-			.withLimits({
-				constants::AUTON_MAX_LINEAR,
-				constants::AUTON_MAX_ACCEL, 
-				constants::AUTON_MAX_JERK
-			})
+			.withLimits(constants::PATH_LIMITS)
 			.withOutput(chassis)
 			.buildMotionProfileController();
 
@@ -59,6 +55,8 @@ void initialize() {
 		{{0_ft, 0_ft, 0_deg}, {3_ft, 3_ft, 90_deg}}, "right_turn");
 	chassisProfileController->generatePath(
 		{{0_ft, 0_ft, 0_deg}, {3_ft, 0_ft, 0_deg}}, "straight");
+	chassisProfileController->generatePath(
+		{{0_ft, 0_ft, 0_deg}, {0_ft, 2_ft, 0_deg}}, "strafe_right");
 }
 
 /**
@@ -91,9 +89,9 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	double oldMaxVel = chassis->getMaxVelocity();
-	chassis->setMaxVelocity(constants::AUTO_MAX_VELO);
-	printf("Setting max velocity to %f, old max velocity was %f\n", constants::AUTO_MAX_VELO, oldMaxVel);
+	// double oldMaxVel = chassis->getMaxVelocity();
+	// chassis->setMaxVelocity(constants::AUTO_MAX_VELO); // affects paths
+	// printf("Setting max velocity to %f, old max velocity was %f\n", constants::AUTO_MAX_VELO, oldMaxVel);
 
 	// for (int i=0; i < 4; i++) {
 	// 	chassis->moveDistance(2_ft);
@@ -104,12 +102,15 @@ void autonomous() {
 
 	chassisProfileController->setTarget("right_turn");
 	chassisProfileController->waitUntilSettled();
+	turnAngle(-90_deg);
 	chassisProfileController->setTarget("straight");
+	chassisProfileController->waitUntilSettled();
+	chassisProfileController->setTarget("strafe_right");
 	chassisProfileController->waitUntilSettled();
 
 	printf("Done with autonomous routine.\n");
 
-	chassis->setMaxVelocity(oldMaxVel);
+	// chassis->setMaxVelocity(oldMaxVel);
 }
 
 /**
@@ -140,4 +141,11 @@ void opcontrol() {
 
 		pros::delay(constants::TELEOP_POLL_TIME);
 	}
+}
+
+void turnAngle(okapi::QAngle angle) {
+	double oldMaxVel = chassis->getMaxVelocity();
+	chassis->setMaxVelocity(oldMaxVel * constants::TURN_VEL_MULT);
+	chassis->turnAngle(angle);
+	chassis->setMaxVelocity(oldMaxVel);
 }

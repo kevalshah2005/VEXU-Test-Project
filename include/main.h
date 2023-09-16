@@ -67,6 +67,7 @@ void initialize(void);
 void disabled(void);
 void competition_initialize(void);
 void opcontrol(void);
+void turnAngle(okapi::QAngle);
 #ifdef __cplusplus
 }
 #endif
