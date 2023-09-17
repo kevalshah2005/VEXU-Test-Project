@@ -12,7 +12,7 @@ static std::shared_ptr<AsyncMotionProfileController> chassisProfileController;
  */
 void initialize() {
 	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Hello PROS User!");
+	pros::lcd::set_text(1, "Comet Robotics VEX-U!");
 	
 	MotorGroup mgroup_l {{constants::FL_PORT, constants::BL_PORT}};
 	MotorGroup mgroup_r {{constants::FR_PORT, constants::BR_PORT}};
