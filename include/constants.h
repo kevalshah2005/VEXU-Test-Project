@@ -19,7 +19,7 @@ namespace constants
     inline constexpr bool LEFT_REVERSED = false;
     inline constexpr bool RIGHT_REVERSED = true;
 
-    inline constexpr int8_t FL_PORT = 19;
+    inline constexpr int8_t FL_PORT = 20;
     inline constexpr int8_t FR_PORT = 11;
     inline constexpr int8_t BL_PORT = 10;
     inline constexpr int8_t BR_PORT = 9;
