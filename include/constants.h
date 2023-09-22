@@ -14,7 +14,7 @@ namespace constants
         {{{0_ft, 0_ft, 0_deg}, {0_ft, 2_ft, 0_deg}}, "strafe_right"},
     };
 
-    inline static const instruction_list AUTON_INSTRUCTIONS = {
+    inline constexpr instruction_list AUTON_INSTRUCTIONS = {
         turn_tag{-25_deg},
         path_tag{"right_turn"},
     };
