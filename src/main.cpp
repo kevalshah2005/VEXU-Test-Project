@@ -1,8 +1,8 @@
 #include "main.h"
 #include "constants.h"
+#include <iostream>
 
-static std::shared_ptr<ChassisController> chassis;
-static std::shared_ptr<AsyncMotionProfileController> chassisProfileController;
+static std::shared_ptr<OdomChassisController> chassis;
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -10,35 +10,23 @@ static std::shared_ptr<AsyncMotionProfileController> chassisProfileController;
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
-void initialize() {
+void initialize()
+{
 	pros::lcd::initialize();
 	pros::lcd::set_text(1, "Comet Robotics VEX-U!");
-	
-	MotorGroup mgroup_l {{constants::FL_PORT, constants::BL_PORT}};
-	MotorGroup mgroup_r {{constants::FR_PORT, constants::BR_PORT}};
+
+	MotorGroup mgroup_l{{constants::FL_PORT, constants::BL_PORT}};
+	MotorGroup mgroup_r{{constants::FR_PORT, constants::BR_PORT}};
 
 	mgroup_l.setReversed(constants::LEFT_REVERSED);
 	mgroup_r.setReversed(constants::RIGHT_REVERSED);
 
-	chassis = 
+	chassis =
 		ChassisControllerBuilder()
-			.withMotors(mgroup_l, mgroup_r)
+			.withMotors(constants::FL_PORT, -constants::FR_PORT)
 			.withDimensions(constants::CHASSIS_GEARSET, {constants::CHASSIS_DIMS, constants::CHASSIS_TPR})
-			// .withGains({0.0002, 0.0, 0.0}, {0.0005, 0.0, 0.0})  // uncomment this line to enable chassis PID
-			.build();
-
-	chassisProfileController =
-		AsyncMotionProfileControllerBuilder()
-			.withLimits(constants::PATH_LIMITS)
-			.withOutput(chassis)
-			.buildMotionProfileController();
-
-	chassisProfileController->generatePath(
-		{{0_ft, 0_ft, 0_deg}, {3_ft, 3_ft, 90_deg}}, "right_turn");
-	chassisProfileController->generatePath(
-		{{0_ft, 0_ft, 0_deg}, {3_ft, 0_ft, 0_deg}}, "straight");
-	chassisProfileController->generatePath(
-		{{0_ft, 0_ft, 0_deg}, {0_ft, 2_ft, 0_deg}}, "strafe_right");
+			.withOdometry()
+			.buildOdometry();
 }
 
 /**
@@ -70,29 +58,23 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void autonomous() {
-	// double oldMaxVel = chassis->getMaxVelocity();
-	// chassis->setMaxVelocity(constants::AUTO_MAX_VELO); // affects paths
+void autonomous()
+{
+	double oldMaxVel = chassis->getMaxVelocity();
+	chassis->setMaxVelocity(1.0); // affects paths
 	// printf("Setting max velocity to %f, old max velocity was %f\n", constants::AUTO_MAX_VELO, oldMaxVel);
 
-	// for (int i=0; i < 4; i++) {
-	// 	chassis->moveDistance(2_ft);
-	// 	printf("Finished driving for iter %d\n", i);
-	// 	chassis->turnAngle(90_deg);
-	// 	printf("Finished turning for iter %d\n", i);
-	// }
-
-	chassisProfileController->setTarget("right_turn");
-	chassisProfileController->waitUntilSettled();
-	turnAngle(-90_deg);
-	chassisProfileController->setTarget("straight");
-	chassisProfileController->waitUntilSettled();
-	chassisProfileController->setTarget("strafe_right");
-	chassisProfileController->waitUntilSettled();
+	for (int i = 0; i < 4; i++)
+	{
+		chassis->moveDistance(2_ft);
+		printf("Finished driving for iter %d\n", i);
+		chassis->turnAngle(90_deg);
+		printf("Finished turning for iter %d\n", i);
+	}
 
 	printf("Done with autonomous routine.\n");
 
-	// chassis->setMaxVelocity(oldMaxVel);
+	chassis->setMaxVelocity(oldMaxVel);
 }
 
 /**
@@ -108,25 +90,30 @@ void autonomous() {
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
-void opcontrol() {
+void opcontrol()
+{
 	Controller controller;
 
-	while (true) {
+	while (true)
+	{
 		// pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
 		//                  (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
 		//                  (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
 		pros::lcd::print(0, "Battery: %f V / %f cap / %f temp", pros::battery::get_voltage(), pros::battery::get_capacity(), pros::battery::get_temperature());
 
+		const auto state = chassis->getState();
+		std::cout << state.x.convert(inch) << " " << state.y.convert(inch) << " " << state.theta.convert(degree) << "\n";
+
 		chassis->getModel()->arcade(
 			controller.getAnalog(ControllerAnalog::leftY),
-			controller.getAnalog(ControllerAnalog::rightX)
-		);
+			controller.getAnalog(ControllerAnalog::rightX));
 
 		pros::delay(constants::TELEOP_POLL_TIME);
 	}
 }
 
-void turnAngle(okapi::QAngle angle) {
+void turnAngle(okapi::QAngle angle)
+{
 	double oldMaxVel = chassis->getMaxVelocity();
 	chassis->setMaxVelocity(oldMaxVel * constants::TURN_VEL_MULT);
 	chassis->turnAngle(angle);
