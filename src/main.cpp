@@ -3,6 +3,7 @@
 #include <iostream>
 
 static std::shared_ptr<OdomChassisController> chassis;
+static std::shared_ptr<AsyncMotionProfileController> chassisProfileController;
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -27,6 +28,19 @@ void initialize()
 			.withDimensions(constants::CHASSIS_GEARSET, {constants::CHASSIS_DIMS, constants::CHASSIS_TPR})
 			.withOdometry()
 			.buildOdometry();
+
+	chassisProfileController =
+		AsyncMotionProfileControllerBuilder()
+			.withLimits(constants::PATH_LIMITS)
+			.withOutput(chassis)
+			.buildMotionProfileController();
+
+	chassisProfileController->generatePath(
+		{{0_ft, 0_ft, 0_deg}, {3_ft, 3_ft, 90_deg}}, "right_turn");
+	chassisProfileController->generatePath(
+		{{0_ft, 0_ft, 0_deg}, {3_ft, 0_ft, 0_deg}}, "straight");
+	chassisProfileController->generatePath(
+		{{0_ft, 0_ft, 0_deg}, {0_ft, 2_ft, 0_deg}}, "strafe_right");
 }
 
 /**
@@ -60,20 +74,28 @@ void competition_initialize() {}
  */
 void autonomous()
 {
-	double oldMaxVel = chassis->getMaxVelocity();
-	chassis->setMaxVelocity(125.0);		 // affects paths
-	chassis->driveToPoint({1_ft, 1_ft}); // assume starting position of {0, 0, 0}
-	for (int i = 0; i < 4; i++)
-	{
-		chassis->moveDistance(2_ft);
-		printf("Finished driving for iter %d\n", i);
-		chassis->turnAngle(90_deg);
-		printf("Finished turning for iter %d\n", i);
-	}
+	// double oldMaxVel = chassis->getMaxVelocity();
+	// chassis->setMaxVelocity(125.0);		 // affects paths
+	// chassis->driveToPoint({1_ft, 1_ft}); // assume starting position of {0, 0, 0}
+	// for (int i = 0; i < 4; i++)
+	// {
+	// 	chassis->moveDistance(2_ft);
+	// 	printf("Finished driving for iter %d\n", i);
+	// 	chassis->turnAngle(90_deg);
+	// 	printf("Finished turning for iter %d\n", i);
+	// }
+
+	chassisProfileController->setTarget("right_turn");
+	chassisProfileController->waitUntilSettled();
+	turnAngle(-90_deg);
+	chassisProfileController->setTarget("straight");
+	chassisProfileController->waitUntilSettled();
+	chassisProfileController->setTarget("strafe_right");
+	chassisProfileController->waitUntilSettled();
 
 	printf("Done with autonomous routine.\n");
 
-	chassis->setMaxVelocity(oldMaxVel);
+	// chassis->setMaxVelocity(oldMaxVel);
 }
 
 /**
@@ -98,7 +120,7 @@ void opcontrol()
 		// pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
 		//                  (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
 		//                  (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
-		pros::lcd::print(0, "Battery: %f V / %f cap / %f temp", pros::battery::get_voltage(), pros::battery::get_capacity(), pros::battery::get_temperature());
+		pros::lcd::print(0, "Battery: %f V / %f cap / %f temp", pros::battery::get_voltage()/1000.0, pros::battery::get_capacity(), pros::battery::get_temperature());
 
 		const auto state = chassis->getState();
 		std::cout << state.x.convert(inch) << " " << state.y.convert(inch) << " " << state.theta.convert(degree) << "\n";
