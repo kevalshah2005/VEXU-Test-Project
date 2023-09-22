@@ -1,19 +1,32 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#include <array>
+#include <string_view>
 #include "okapi/api.hpp"
+#include "path.h"
 
 namespace constants
 {
+    using namespace comets;
+    inline constexpr path_target AUTON_PATH_TARGETS[] = {
+        {{{0_ft, 0_ft, 0_deg}, {3_ft, 3_ft, 90_deg}}, "right_turn"},
+        {{{0_ft, 0_ft, 0_deg}, {3_ft, 0_ft, 0_deg}}, "straight"},
+        {{{0_ft, 0_ft, 0_deg}, {0_ft, 2_ft, 0_deg}}, "strafe_right"},
+    };
+
+    inline static const instruction_list AUTON_INSTRUCTIONS = {
+        turn_tag{-25_deg},
+        path_tag{"right_turn"},
+    };
+
     inline constexpr auto CHASSIS_GEARSET = AbstractMotor::gearset::green;
     inline constexpr auto CHASSIS_DIMS = {4_in, 12.5_in};
     inline constexpr auto CHASSIS_TPR = imev5GreenTPR;
 
     inline constexpr okapi::PathfinderLimits PATH_LIMITS = {
-        1.0  * 0.66, // Maximum linear velocity of the Chassis in m/s
-        2.0  * 0.66, // Maximum linear acceleration of the Chassis in m/s/s
-        10.0 * 0.66  // Maximum linear jerk of the Chassis in m/s/s/s
+        1.0 * 0.66, // Maximum linear velocity of the Chassis in m/s
+        2.0 * 0.66, // Maximum linear acceleration of the Chassis in m/s/s
+        10.0 * 0.66 // Maximum linear jerk of the Chassis in m/s/s/s
     };
 
     inline constexpr bool LEFT_REVERSED = false;
