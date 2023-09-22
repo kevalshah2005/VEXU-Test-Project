@@ -23,7 +23,7 @@ void initialize()
 
 	chassis =
 		ChassisControllerBuilder()
-			.withMotors(constants::FL_PORT, -constants::FR_PORT)
+			.withMotors(mgroup_l, mgroup_r)
 			.withDimensions(constants::CHASSIS_GEARSET, {constants::CHASSIS_DIMS, constants::CHASSIS_TPR})
 			.withOdometry()
 			.buildOdometry();
@@ -61,9 +61,8 @@ void competition_initialize() {}
 void autonomous()
 {
 	double oldMaxVel = chassis->getMaxVelocity();
-	chassis->setMaxVelocity(1.0); // affects paths
-	// printf("Setting max velocity to %f, old max velocity was %f\n", constants::AUTO_MAX_VELO, oldMaxVel);
-
+	chassis->setMaxVelocity(125.0);		 // affects paths
+	chassis->driveToPoint({1_ft, 1_ft}); // assume starting position of {0, 0, 0}
 	for (int i = 0; i < 4; i++)
 	{
 		chassis->moveDistance(2_ft);
