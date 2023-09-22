@@ -5,6 +5,25 @@
 static std::shared_ptr<OdomChassisController> chassis;
 static std::shared_ptr<AsyncMotionProfileController> chassisProfileController;
 
+static int selectedAuton = 0;
+const std::string autonNames[] = { "Square", "Paths", "None" };
+
+void autonSelectorWatcher()
+{
+	uint8_t buttons = pros::lcd::read_buttons();
+	if ((buttons & LCD_BTN_LEFT) >> 2)
+		selectedAuton = 0;
+	if ((buttons & LCD_BTN_CENTER) >> 1)
+		selectedAuton = 1;
+	if ((buttons & LCD_BTN_RIGHT) >> 0)
+		selectedAuton = 2;
+	
+	if (buttons > 0)
+	{
+		printf("Set auton to %s\n", autonNames[selectedAuton]);
+	}
+}
+
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -41,6 +60,8 @@ void initialize()
 		{{0_ft, 0_ft, 0_deg}, {3_ft, 0_ft, 0_deg}}, "straight");
 	chassisProfileController->generatePath(
 		{{0_ft, 0_ft, 0_deg}, {0_ft, 2_ft, 0_deg}}, "strafe_right");
+	
+	pros::Task autonSelectorWatcher_task(autonSelectorWatcher);
 }
 
 /**
@@ -74,28 +95,36 @@ void competition_initialize() {}
  */
 void autonomous()
 {
-	// double oldMaxVel = chassis->getMaxVelocity();
-	// chassis->setMaxVelocity(125.0);		 // affects paths
-	// chassis->driveToPoint({1_ft, 1_ft}); // assume starting position of {0, 0, 0}
-	// for (int i = 0; i < 4; i++)
-	// {
-	// 	chassis->moveDistance(2_ft);
-	// 	printf("Finished driving for iter %d\n", i);
-	// 	chassis->turnAngle(90_deg);
-	// 	printf("Finished turning for iter %d\n", i);
-	// }
+	if (selectedAuton == 0)
+	{
+		double oldMaxVel = chassis->getMaxVelocity();
+		chassis->setMaxVelocity(125.0);		 // affects paths
+		chassis->driveToPoint({1_ft, 1_ft}); // assume starting position of {0, 0, 0} // TODO: figure out what this does
+		for (int i = 0; i < 4; i++)
+		{
+			chassis->moveDistance(2_ft);
+			printf("Finished driving for iter %d\n", i);
+			chassis->turnAngle(90_deg);
+			printf("Finished turning for iter %d\n", i);
+		}
+		chassis->setMaxVelocity(oldMaxVel);
+	}
+	else if (selectedAuton == 1)
+	{
+		chassisProfileController->setTarget("right_turn");
+		chassisProfileController->waitUntilSettled();
+		turnAngle(-90_deg);
+		chassisProfileController->setTarget("straight");
+		chassisProfileController->waitUntilSettled();
+		chassisProfileController->setTarget("strafe_right");
+		chassisProfileController->waitUntilSettled();
+	}
+	else if (selectedAuton == 2)
+	{
+		// do nothing
+	}
 
-	chassisProfileController->setTarget("right_turn");
-	chassisProfileController->waitUntilSettled();
-	turnAngle(-90_deg);
-	chassisProfileController->setTarget("straight");
-	chassisProfileController->waitUntilSettled();
-	chassisProfileController->setTarget("strafe_right");
-	chassisProfileController->waitUntilSettled();
-
-	printf("Done with autonomous routine.\n");
-
-	// chassis->setMaxVelocity(oldMaxVel);
+	printf("Done with autonomous routine. (%s)\n", autonNames[selectedAuton]);
 }
 
 /**
