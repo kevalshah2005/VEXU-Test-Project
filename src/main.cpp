@@ -2,25 +2,56 @@
 #include "constants.h"
 #include <iostream>
 
+enum class AutonModes
+{
+	SQUARE,
+	PATHS,
+	NONE,
+};
+
 static std::shared_ptr<OdomChassisController> chassis;
 static std::shared_ptr<AsyncMotionProfileController> chassisProfileController;
+static AutonModes selectedAuton = AutonModes::NONE;
 
-static int selectedAuton = 0;
-const std::string autonNames[] = { "Square", "Paths", "None" };
+static inline auto auton_mode_to_string(AutonModes mode) -> std::string
+{
+	switch (mode)
+	{
+	case AutonModes::SQUARE:
+		return "square";
+	case AutonModes::PATHS:
+		return "square";
+	case AutonModes::NONE:
+		return "none";
+	}
+	// unreachable
+	abort();
+}
 
 void autonSelectorWatcher()
 {
-	uint8_t buttons = pros::lcd::read_buttons();
-	if ((buttons & LCD_BTN_LEFT) >> 2)
-		selectedAuton = 0;
-	if ((buttons & LCD_BTN_CENTER) >> 1)
-		selectedAuton = 1;
-	if ((buttons & LCD_BTN_RIGHT) >> 0)
-		selectedAuton = 2;
-	
-	if (buttons > 0)
+	// this can get mucky if two buttons are pressed at the same time. this does not matter tbh
+	const uint8_t buttons = pros::lcd::read_buttons();
+	if (buttons == 0)
 	{
-		printf("Set auton to %s\n", autonNames[selectedAuton]);
+		return;
+	}
+
+	if (buttons & LCD_BTN_LEFT)
+	{
+		selectedAuton = AutonModes::SQUARE;
+	}
+	else if (buttons & LCD_BTN_CENTER)
+	{
+		selectedAuton = AutonModes::PATHS;
+	}
+	else if (buttons & LCD_BTN_RIGHT)
+	{
+		selectedAuton = AutonModes::NONE;
+	}
+	else
+	{
+		abort();
 	}
 }
 
@@ -54,13 +85,11 @@ void initialize()
 			.withOutput(chassis)
 			.buildMotionProfileController();
 
-	chassisProfileController->generatePath(
-		{{0_ft, 0_ft, 0_deg}, {3_ft, 3_ft, 90_deg}}, "right_turn");
-	chassisProfileController->generatePath(
-		{{0_ft, 0_ft, 0_deg}, {3_ft, 0_ft, 0_deg}}, "straight");
-	chassisProfileController->generatePath(
-		{{0_ft, 0_ft, 0_deg}, {0_ft, 2_ft, 0_deg}}, "strafe_right");
-	
+	for (const comets::path_plan &plan : constants::PATHS)
+	{
+		chassisProfileController->generatePath(plan.points, std::string(plan.name));
+	}
+
 	pros::Task autonSelectorWatcher_task(autonSelectorWatcher);
 }
 
@@ -95,7 +124,12 @@ void competition_initialize() {}
  */
 void autonomous()
 {
-	if (selectedAuton == 0)
+	const auto mode_name = auton_mode_to_string(selectedAuton);
+	printf("Starting autonomous routine. (%s)\n", mode_name.c_str());
+
+	switch (selectedAuton)
+	{
+	case AutonModes::SQUARE:
 	{
 		double oldMaxVel = chassis->getMaxVelocity();
 		chassis->setMaxVelocity(125.0);		 // affects paths
@@ -109,7 +143,8 @@ void autonomous()
 		}
 		chassis->setMaxVelocity(oldMaxVel);
 	}
-	else if (selectedAuton == 1)
+	break;
+	case AutonModes::PATHS:
 	{
 		chassisProfileController->setTarget("right_turn");
 		chassisProfileController->waitUntilSettled();
@@ -119,12 +154,14 @@ void autonomous()
 		chassisProfileController->setTarget("strafe_right");
 		chassisProfileController->waitUntilSettled();
 	}
-	else if (selectedAuton == 2)
+	break;
+	case AutonModes::NONE:
 	{
-		// do nothing
+	}
+	break;
 	}
 
-	printf("Done with autonomous routine. (%s)\n", autonNames[selectedAuton]);
+	printf("Done with autonomous routine. (%s)\n", mode_name.c_str());
 }
 
 /**
@@ -149,7 +186,7 @@ void opcontrol()
 		// pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
 		//                  (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
 		//                  (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
-		pros::lcd::print(0, "Battery: %f V / %f cap / %f temp", pros::battery::get_voltage()/1000.0, pros::battery::get_capacity(), pros::battery::get_temperature());
+		pros::lcd::print(0, "Battery: %f V / %f cap / %f temp", pros::battery::get_voltage() / 1000.0, pros::battery::get_capacity(), pros::battery::get_temperature());
 
 		const auto state = chassis->getState();
 		std::cout << state.x.convert(inch) << " " << state.y.convert(inch) << " " << state.theta.convert(degree) << "\n";

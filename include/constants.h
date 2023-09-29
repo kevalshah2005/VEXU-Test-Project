@@ -1,8 +1,8 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#include <array>
-#include "okapi/api.hpp"
+#include <map>
+#include "comets/paths.h"
 
 namespace constants
 {
@@ -11,9 +11,15 @@ namespace constants
     inline constexpr auto CHASSIS_TPR = imev5GreenTPR;
 
     inline constexpr okapi::PathfinderLimits PATH_LIMITS = {
-        1.0  * 0.66, // Maximum linear velocity of the Chassis in m/s
-        2.0  * 0.66, // Maximum linear acceleration of the Chassis in m/s/s
-        10.0 * 0.66  // Maximum linear jerk of the Chassis in m/s/s/s
+        1.0 * 0.66, // Maximum linear velocity of the Chassis in m/s
+        2.0 * 0.66, // Maximum linear acceleration of the Chassis in m/s/s
+        10.0 * 0.66 // Maximum linear jerk of the Chassis in m/s/s/s
+    };
+
+    inline constexpr comets::path_plan PATHS[] = {
+        {.name = "right_turn", .points = {{0_ft, 0_ft, 0_deg}, {3_ft, 3_ft, 90_deg}}},
+        {.name = "straight", .points = {{0_ft, 0_ft, 0_deg}, {3_ft, 0_ft, 0_deg}}},
+        {.name = "strafe_right", .points = {{0_ft, 0_ft, 0_deg}, {0_ft, 2_ft, 0_deg}}},
     };
 
     inline constexpr bool LEFT_REVERSED = false;
