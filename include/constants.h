@@ -25,10 +25,19 @@ namespace constants
     inline constexpr bool LEFT_REVERSED = false;
     inline constexpr bool RIGHT_REVERSED = true;
 
-    inline constexpr int8_t FL_PORT = 20;
-    inline constexpr int8_t FR_PORT = 11;
-    inline constexpr int8_t BL_PORT = 10;
-    inline constexpr int8_t BR_PORT = 9;
+    inline constexpr int8_t FL_PORT = 1;
+    inline constexpr int8_t FR_PORT = 19;
+    inline constexpr int8_t BL_PORT = 11;
+    inline constexpr int8_t BR_PORT = 20;
+
+    inline constexpr int8_t ARM_1_LEFT = 6;
+    inline constexpr int8_t ARM_1_RIGHT = 16;
+    inline constexpr int8_t ARM_2 = 7;
+    inline constexpr int8_t CLAW = 10;
+
+    inline constexpr int8_t ARM_1_SPEED = 100;
+    inline constexpr int8_t ARM_2_SPEED = 100;
+    inline constexpr int8_t CLAW_SPEED = 100;
 
     // Max velocity of auton, in RPM
     inline constexpr double TURN_VEL_MULT = 0.3;
