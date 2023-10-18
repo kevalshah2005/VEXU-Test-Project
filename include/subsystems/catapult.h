@@ -4,27 +4,26 @@
 #include "comets/vendor.h"
 #include <memory>
 
+/**
+ * This code just implements an two position arm, but the real mechanism has
+ * rubber bands pulling the arm to the zero position.
+ */
 class Catapult
 {
 public:
     Catapult();
 
-    double get_pos();
-    double get_vel();
+    bool is_motor_idle() noexcept;
 
-    void reset_pos();
+    void zero_position();
 
     void wind_arm();
     void release_arm();
 
-    inline okapi::Motor& get_motor() {
-        return m_motor;
-    }
-
 private:
     okapi::Motor m_motor;
 
-    bool is_motor_resting();
+    void set_position(double position);
 };
 
 #endif

@@ -78,6 +78,7 @@ void initialize()
 	mgroup_r.setReversed(constants::RIGHT_REVERSED);
 
 	catapult = std::make_shared<Catapult>();
+	catapult->zero_position();
 
 	chassis =
 		ChassisControllerBuilder()
