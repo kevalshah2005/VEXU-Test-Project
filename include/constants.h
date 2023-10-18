@@ -2,14 +2,16 @@
 #define CONSTANTS_H
 
 #include <map>
+#include "comets/vendor.h"
 #include "comets/paths.h"
 #include "comets/types.h"
 
 namespace constants
 {
-    inline constexpr auto CHASSIS_GEARSET = AbstractMotor::gearset::green;
+    using namespace okapi;
+    inline constexpr auto CHASSIS_GEARSET = okapi::AbstractMotor::gearset::green;
     inline constexpr auto CHASSIS_DIMS = {4_in, 12.5_in};
-    inline constexpr auto CHASSIS_TPR = imev5GreenTPR;
+    inline constexpr auto CHASSIS_TPR = okapi::imev5GreenTPR;
 
     inline constexpr okapi::PathfinderLimits PATH_LIMITS = {
         1.0 * 0.66, // Maximum linear velocity of the Chassis in m/s
