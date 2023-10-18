@@ -12,6 +12,9 @@ enum class AutonModes
 static std::shared_ptr<OdomChassisController> chassis;
 static std::shared_ptr<AsyncMotionProfileController> chassisProfileController;
 static AutonModes selectedAuton = AutonModes::NONE;
+static std::shared_ptr<Motor> arm_motor;
+
+static void wind_back_arm();
 
 static inline auto auton_mode_to_string(AutonModes mode) -> std::string
 {
@@ -72,6 +75,12 @@ void initialize()
 	mgroup_l.setReversed(constants::LEFT_REVERSED);
 	mgroup_r.setReversed(constants::RIGHT_REVERSED);
 
+	arm_motor = std::make_shared<Motor>(constants::ARM_PORT);
+	arm_motor->tarePosition();
+	arm_motor->setPosPID(constants::ARM_POS_PIDF.F, constants::ARM_POS_PIDF.P, constants::ARM_POS_PIDF.I, constants::ARM_POS_PIDF.D);
+	arm_motor->setVelPID(constants::ARM_VEL_PIDF.F, constants::ARM_VEL_PIDF.P, constants::ARM_VEL_PIDF.I, constants::ARM_VEL_PIDF.D);
+	arm_motor->setReversed(constants::ARM_REVERSED);
+
 	chassis =
 		ChassisControllerBuilder()
 			.withMotors(mgroup_l, mgroup_r)
@@ -124,6 +133,7 @@ void competition_initialize() {}
  */
 void autonomous()
 {
+	wind_back_arm();
 	const auto mode_name = auton_mode_to_string(selectedAuton);
 	printf("Starting autonomous routine. (%s)\n", mode_name.c_str());
 
@@ -205,4 +215,10 @@ void turnAngle(okapi::QAngle angle)
 	chassis->setMaxVelocity(oldMaxVel * constants::TURN_VEL_MULT);
 	chassis->turnAngle(angle);
 	chassis->setMaxVelocity(oldMaxVel);
+}
+
+static void wind_back_arm()
+{
+	arm_motor->setBrakeMode(okapi::AbstractMotor::brakeMode::brake);
+	arm_motor->moveAbsolute(550, 400);
 }

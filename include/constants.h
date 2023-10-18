@@ -3,6 +3,7 @@
 
 #include <map>
 #include "comets/paths.h"
+#include "comets/types.h"
 
 namespace constants
 {
@@ -29,6 +30,20 @@ namespace constants
     inline constexpr int8_t FR_PORT = 11;
     inline constexpr int8_t BL_PORT = 10;
     inline constexpr int8_t BR_PORT = 9;
+
+    inline constexpr int8_t ARM_PORT = 12;
+    inline constexpr bool ARM_REVERSED = false;
+    inline constexpr auto ARM_POS_PIDF = comets::PIDF_Value{
+        .P = 0.01,
+        .I = 0.0,
+        .D = 0.0,
+        .F = 0.05};
+
+    inline constexpr auto ARM_VEL_PIDF = comets::PIDF_Value{
+        .P = 0.03,
+        .I = 0.0,
+        .D = 0.02,
+        .F = 0.10};
 
     // Max velocity of auton, in RPM
     inline constexpr double TURN_VEL_MULT = 0.3;
