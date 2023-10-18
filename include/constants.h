@@ -33,19 +33,26 @@ namespace constants
     inline constexpr int8_t BL_PORT = 10;
     inline constexpr int8_t BR_PORT = 9;
 
-    inline constexpr int8_t ARM_PORT = 12;
-    inline constexpr bool ARM_REVERSED = false;
-    inline constexpr auto ARM_POS_PIDF = comets::PIDF_Value{
-        .P = 0.01,
-        .I = 0.0,
-        .D = 0.0,
-        .F = 0.05};
+    namespace catapult
+    {
+        inline constexpr int8_t PORT = 12;
+        inline constexpr bool REVERSED = false;
+        inline constexpr auto POS_PIDF = comets::PIDF_Value{
+            .P = 0.01,
+            .I = 0.0,
+            .D = 0.0,
+            .F = 0.05};
 
-    inline constexpr auto ARM_VEL_PIDF = comets::PIDF_Value{
-        .P = 0.03,
-        .I = 0.0,
-        .D = 0.02,
-        .F = 0.10};
+        inline constexpr auto VEL_PIDF = comets::PIDF_Value{
+            .P = 0.03,
+            .I = 0.0,
+            .D = 0.02,
+            .F = 0.10};
+
+        inline constexpr auto STORED_POSITION = 0.0;
+        inline constexpr auto EXTENDED_POSITION = 550.0;
+
+    } // namespace catapult
 
     // Max velocity of auton, in RPM
     inline constexpr double TURN_VEL_MULT = 0.3;

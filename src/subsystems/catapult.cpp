@@ -7,14 +7,13 @@
 static inline constexpr double IDLE_VELOCITY_ERROR_RANGE = 10.0;
 static inline constexpr double IDLE_POSITION_ERROR_RANGE = 10.0;
 
-static inline constexpr double STORED_POSITION = 0.0;
-static inline constexpr double EXTENDED_POSITION = 550.0;
+namespace arm = constants::catapult;
 
-Catapult::Catapult() : m_motor(constants::ARM_PORT)
+Catapult::Catapult() : m_motor(arm::PORT)
 {
-    m_motor.setPosPID(constants::ARM_POS_PIDF.F, constants::ARM_POS_PIDF.P, constants::ARM_POS_PIDF.I, constants::ARM_POS_PIDF.D);
-    m_motor.setVelPID(constants::ARM_VEL_PIDF.F, constants::ARM_VEL_PIDF.P, constants::ARM_VEL_PIDF.I, constants::ARM_VEL_PIDF.D);
-    m_motor.setReversed(constants::ARM_REVERSED);
+    m_motor.setPosPID(arm::POS_PIDF.F, arm::POS_PIDF.P, arm::POS_PIDF.I, arm::POS_PIDF.D);
+    m_motor.setVelPID(arm::VEL_PIDF.F, arm::VEL_PIDF.P, arm::VEL_PIDF.I, arm::VEL_PIDF.D);
+    m_motor.setReversed(arm::REVERSED);
     zero_position();
 }
 
@@ -25,14 +24,14 @@ void Catapult::zero_position()
 
 void Catapult::wind_arm()
 {
-    set_position(EXTENDED_POSITION);
+    set_position(arm::EXTENDED_POSITION);
 }
 
 void Catapult::release_arm()
 {
     // although the code would suggest that the release is the same speed as winding
     // but the real robot has elastic bands pulling it torwards the stored position.
-    set_position(STORED_POSITION);
+    set_position(arm::STORED_POSITION);
 }
 
 bool Catapult::is_motor_idle()
